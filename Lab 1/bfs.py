@@ -3,28 +3,20 @@ from puzzleState import PuzzleState, reconstruct_path
 import copy
 
 def BFS(initialState, goalState):
-    """    
-    Args:
-        initialState: PuzzleState object representing the start
-        goalState: PuzzleState object representing the goal
-    
-    Returns:
-        (solution_path, trace_data, expanded_nodes, max_depth)
-    """
     frontier = deque([initialState])
+    frontier_set = {initialState.to_tuple()}
     explored = set()
-    expanded_nodes = []  # Store all expanded states
-    trace_data = []      # Store step-by-step information
-    max_depth = 0        # Track the deepest node explored
+    expanded_nodes = []
+    trace_data = []
+    max_depth = 0
 
-    # Add initial state to trace
     trace_data.append({
         'step': 0,
         'action': 'initialize',
         'current_state': copy.deepcopy(initialState.board),
         'frontier_size': 1,
         'explored_size': 0,
-        'message': 'Starting DFS with initial state'
+        'message': 'Starting BFS with initial state'
     })
     
     step = 0
@@ -32,12 +24,15 @@ def BFS(initialState, goalState):
     while frontier:
         step += 1
         state = frontier.popleft()
-        
-        # Track expanded node
+        state_tuple = state.to_tuple()
+
+        # Defensive removal from frontier_set
+        if state_tuple in frontier_set:
+            frontier_set.remove(state_tuple)
+
         expanded_nodes.append(copy.deepcopy(state.board))
         max_depth = max(max_depth, state.depth)
-        
-        # Add to trace
+
         trace_data.append({
             'step': step,
             'action': 'pop',
@@ -48,8 +43,7 @@ def BFS(initialState, goalState):
             'explored_size': len(explored),
             'message': f'Popped state (depth {state.depth})'
         })
-        
-        # Check if goal
+
         if state == goalState:
             solution_path = reconstruct_path(state)
             trace_data.append({
@@ -60,25 +54,20 @@ def BFS(initialState, goalState):
                 'message': f'Goal found! Solution has {len(solution_path)} moves'
             })
             return solution_path, trace_data, expanded_nodes, max_depth
-        
+
         explored.add(state.to_tuple())
         
-        # Generate neighbors
         neighbors = state.get_neighbors()
         added_count = 0
-        
+
         for neighbor in neighbors:
             neighbor_tuple = neighbor.to_tuple()
             
-            # Check if already explored or in frontier
-            if neighbor_tuple not in explored:
-                # Check if already in frontier
-                in_frontier = any(n.to_tuple() == neighbor_tuple for n in frontier)
-                
-                if not in_frontier:
-                    frontier.append(neighbor)
-                    added_count += 1
-        
+            if neighbor_tuple not in explored and neighbor_tuple not in frontier_set:
+                frontier.append(neighbor)
+                frontier_set.add(neighbor_tuple)
+                added_count += 1
+
         if added_count > 0:
             trace_data.append({
                 'step': step,
@@ -88,8 +77,7 @@ def BFS(initialState, goalState):
                 'explored_size': len(explored),
                 'message': f'Added {added_count} new neighbors to frontier'
             })
-    
-    # Goal not found
+
     trace_data.append({
         'step': step + 1,
         'action': 'failed',

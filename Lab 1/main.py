@@ -90,6 +90,7 @@ def main():
         print(f"Execution Time : {time_elapsed}")
         print(f'Max Depth : {depth}')
         with open('bfs.txt','w') as F:
+            F.write(f"Number of expanded nodes = {len(expanded)}\n")
             for matrix in expanded:
                 for row in matrix:
                     for element in row:
@@ -108,6 +109,7 @@ def main():
         print(f"Execution Time : {time_elapsed}")
         print(f'Max Depth : {depth}')
         with open('dfs.txt','w') as F:
+            F.write(f"Number of expanded nodes = {len(expanded)}\n")
             for matrix in expanded:
                 for row in matrix:
                     for element in row:
@@ -128,6 +130,7 @@ def main():
         print(f"Execution Time : {time_elapsed}")
         print(f'Max Depth : {depth}')
         with open('iddfs.txt','w') as F:
+            F.write(f"Number of expanded nodes = {len(expanded)}\n")
             for matrix in expanded:
                 for row in matrix:
                     for element in row:
@@ -142,6 +145,7 @@ def main():
             if heur_choice in ('manhattan', 'euclidean'):
                 break
             print("Invalid choice. Please enter 'manhattan' or 'euclidean'.")
+        print(f"\n running A* with {heur_choice} heurestic")
         start = time.time()
         solution, trace, expanded_nodes, max_depth, heuristic_name = astar(initial, goal, heur_choice)
         end = time.time()

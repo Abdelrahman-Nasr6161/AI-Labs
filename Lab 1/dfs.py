@@ -1,4 +1,3 @@
-from collections import deque
 from puzzleState import PuzzleState, reconstruct_path
 import copy
 
@@ -11,14 +10,13 @@ def DFS(initialState, goalState):
     Returns:
         (solution_path, trace_data, expanded_nodes, max_depth)
     """
-    frontier = []
-    frontier.append(initialState)
+    frontier = [initialState]           # Stack for DFS
+    frontier_set = {initialState.to_tuple()}  # Set for O(1) frontier membership check
     explored = set()
-    expanded_nodes = []  # Store all expanded states
-    trace_data = []      # Store step-by-step information
-    max_depth = 0        # Track the deepest node explored
+    expanded_nodes = []
+    trace_data = []
+    max_depth = 0
 
-    # Add initial state to trace
     trace_data.append({
         'step': 0,
         'action': 'initialize',
@@ -32,13 +30,16 @@ def DFS(initialState, goalState):
     
     while frontier:
         step += 1
-        state = frontier.pop()
+        state = frontier.pop()  # LIFO for DFS
+        state_tuple = state.to_tuple()
         
-        # Track expanded node
+        # Defensive removal from frontier_set
+        if state_tuple in frontier_set:
+            frontier_set.remove(state_tuple)
+
         expanded_nodes.append(copy.deepcopy(state.board))
         max_depth = max(max_depth, state.depth)
-        
-        # Add to trace
+
         trace_data.append({
             'step': step,
             'action': 'pop',
@@ -49,8 +50,7 @@ def DFS(initialState, goalState):
             'explored_size': len(explored),
             'message': f'Popped state (depth {state.depth})'
         })
-        
-        # Check if goal
+
         if state == goalState:
             solution_path = reconstruct_path(state)
             trace_data.append({
@@ -62,24 +62,20 @@ def DFS(initialState, goalState):
             })
             return solution_path, trace_data, expanded_nodes, max_depth
         
-        explored.add(state.to_tuple())
-        
-        # Generate neighbors
+        explored.add(state_tuple)
+
         neighbors = state.get_neighbors()
         added_count = 0
-        
+
         for neighbor in neighbors:
             neighbor_tuple = neighbor.to_tuple()
             
-            # Check if already explored or in frontier
-            if neighbor_tuple not in explored:
-                # Check if already in frontier
-                in_frontier = any(n.to_tuple() == neighbor_tuple for n in frontier)
-                
-                if not in_frontier:
-                    frontier.append(neighbor)
-                    added_count += 1
-        
+            # Use hashed checks for both frontier and explored
+            if neighbor_tuple not in explored and neighbor_tuple not in frontier_set:
+                frontier.append(neighbor)
+                frontier_set.add(neighbor_tuple)
+                added_count += 1
+
         if added_count > 0:
             trace_data.append({
                 'step': step,
@@ -89,8 +85,7 @@ def DFS(initialState, goalState):
                 'explored_size': len(explored),
                 'message': f'Added {added_count} new neighbors to frontier'
             })
-    
-    # Goal not found
+
     trace_data.append({
         'step': step + 1,
         'action': 'failed',
