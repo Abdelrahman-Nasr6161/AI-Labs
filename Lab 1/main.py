@@ -72,7 +72,7 @@ def main():
     print("\nSelect Search Algorithm:")
     print("1. BFS")
     print("2. DFS")
-    print("3. IDS")
+    print("3. IDFS")
     print("4. A*")
     print("5. Exit")
     
@@ -90,7 +90,7 @@ def main():
         # print_solution(solution)
         
     elif choice == '3':
-        print("\IDS not yet implemented")
+        print("\IDFS not yet implemented")
         
     elif choice == '4':
         print("\nA* not yet implemented")
@@ -103,4 +103,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
