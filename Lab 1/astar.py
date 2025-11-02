@@ -147,6 +147,7 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
         explored.add(state_tuple)
 
         if trace:
+            true_dist = calculate_true_distance(state,goal_state)
             trace_data.append({
                 'step': step,
                 'action': 'dequeue',
@@ -154,6 +155,7 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
                 'g_cost': current_node.g_cost,
                 'h_cost': current_node.h_cost,
                 'f_cost': current_node.f_cost,
+                'true_distance' : true_dist,
                 'depth': state.depth,
                 'frontier_size': len(frontier),
                 'explored_size': len(explored),

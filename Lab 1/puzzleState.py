@@ -32,7 +32,7 @@ class PuzzleState:
             new_row, new_col = row + dr, col + dc
             if 0 <= new_row < len(self.board) and 0 <= new_col < len(self.board[0]):
                 # Create new board by swapping blank with adjacent tile
-                new_board = copy.deepcopy(self.board)
+                new_board = [row.copy() for row in self.board]
                 new_board[row][col], new_board[new_row][new_col] = \
                     new_board[new_row][new_col], new_board[row][col]
                 

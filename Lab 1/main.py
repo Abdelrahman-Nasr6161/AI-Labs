@@ -122,21 +122,25 @@ def main():
     elif choice == '3':
         print("\nRunning IDDFS...")
         start = time.time()
-        solution, trace,expanded,depth = IDDFS(initial, goal)
+        solution, trace, expanded, depth = IDDFS(initial, goal)
         end = time.time()
         time_elapsed = end - start
-        print(f"\nStates explored: {trace[-2]['explored_size'] if len(trace) > 1 else 0}")
+    
+        # States explored: use the length of expanded nodes
+        states_explored = len(expanded)
+    
+        print(f"\nStates explored: {states_explored}")
         print_solution(solution)
-        print(f"Execution Time : {time_elapsed}")
-        print(f'Max Depth : {depth}')
-        with open('iddfs.txt','w') as F:
-            F.write(f"Number of expanded nodes = {len(expanded)}\n")
+        print(f"Execution Time: {time_elapsed:.5f} seconds")
+        print(f"Max Depth Reached: {depth}")
+    
+        # Save expanded nodes to file
+        with open('iddfs.txt', 'w') as f:
+            f.write(f"Number of expanded nodes = {states_explored}\n\n")
             for matrix in expanded:
                 for row in matrix:
-                    for element in row:
-                        F.write(f"{str(element)} ")
-                    F.write("\n")
-                F.write("\n")
+                    f.write(" ".join(str(x) for x in row) + "\n")
+                f.write("\n")
         
     elif choice == '4':
         # heuristic = input("Choose heuristic (manhattan/euclidean): ")
