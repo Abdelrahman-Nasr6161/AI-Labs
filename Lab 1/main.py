@@ -1,5 +1,6 @@
 import math
 from bfs import BFS
+from astar import astar, print_astar_solution
 from puzzleState import PuzzleState
 
 def parse_state(state_string, size=3):
@@ -25,7 +26,6 @@ def parse_state(state_string, size=3):
     
     return board
 
-
 def print_solution(solution):
     """Pretty print the solution."""
     if solution:
@@ -41,7 +41,6 @@ def print_solution(solution):
             print(board_str)
     else:
         print("\nNo solution found!")
-
 
 def main():
     print("8-Puzzle Solver")
@@ -72,7 +71,7 @@ def main():
     print("\nSelect Search Algorithm:")
     print("1. BFS")
     print("2. DFS")
-    print("3. IDS")
+    print("3. IDFS")
     print("4. A*")
     print("5. Exit")
     
@@ -90,17 +89,23 @@ def main():
         # print_solution(solution)
         
     elif choice == '3':
-        print("\IDS not yet implemented")
+        print("\IDFS not yet implemented")
         
     elif choice == '4':
-        print("\nA* not yet implemented")
+        # heuristic = input("Choose heuristic (manhattan/euclidean): ")
+        while True:
+            heur_choice = input("Choose heuristic (manhattan/euclidean): ").strip().lower()
+            if heur_choice in ('manhattan', 'euclidean'):
+                break
+            print("Invalid choice. Please enter 'manhattan' or 'euclidean'.")
+        solution, trace, heur_name = astar(initial, goal, heur_choice)
+        print_astar_solution(solution, trace, heur_name)
         
     elif choice == '5':
         print("\nExiting...")
     
     else:
         print("\nInvalid choice!")
-
 
 if __name__ == "__main__":
     main()
