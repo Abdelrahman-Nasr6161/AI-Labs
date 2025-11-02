@@ -2,7 +2,9 @@ import math
 from bfs import BFS
 from astar import astar, print_astar_solution
 from puzzleState import PuzzleState
-
+from dfs import DFS
+from iddfs import IDDFS
+import time
 def parse_state(state_string, size=3):
     """
     Convert comma-separated string to 2D board.
@@ -71,7 +73,7 @@ def main():
     print("\nSelect Search Algorithm:")
     print("1. BFS")
     print("2. DFS")
-    print("3. IDFS")
+    print("3. IDDFS")
     print("4. A*")
     print("5. Exit")
     
@@ -79,17 +81,59 @@ def main():
     
     if choice == '1':
         print("\nRunning BFS...")
-        solution, trace = BFS(initial, goal)
+        start = time.time()
+        solution, trace,expanded,depth = BFS(initial, goal)
+        end = time.time()
+        time_elapsed = end - start
         print(f"\nStates explored: {trace[-2]['explored_size'] if len(trace) > 1 else 0}")
         print_solution(solution)
+        print(f"Execution Time : {time_elapsed}")
+        print(f'Max Depth : {depth}')
+        with open('bfs.txt','w') as F:
+            for matrix in expanded:
+                for row in matrix:
+                    for element in row:
+                        F.write(f"{str(element)} ")
+                    F.write("\n")
+                F.write("\n")
         
     elif choice == '2':
-        print("\nDFS not yet implemented")
-        # solution, trace = dfs(initial, goal, trace=True)
-        # print_solution(solution)
+        print("\nRunning DFS...")
+        start = time.time()
+        solution, trace,expanded,depth = DFS(initial, goal)
+        end = time.time()
+        time_elapsed = end - start
+        print(f"\nStates explored: {trace[-2]['explored_size'] if len(trace) > 1 else 0}")
+        print_solution(solution)
+        print(f"Execution Time : {time_elapsed}")
+        print(f'Max Depth : {depth}')
+        with open('dfs.txt','w') as F:
+            for matrix in expanded:
+                for row in matrix:
+                    for element in row:
+                        F.write(f"{str(element)} ")
+                    F.write("\n")
+                F.write("\n")
+
+        
         
     elif choice == '3':
-        print("\IDFS not yet implemented")
+        print("\nRunning IDDFS...")
+        start = time.time()
+        solution, trace,expanded,depth = IDDFS(initial, goal)
+        end = time.time()
+        time_elapsed = end - start
+        print(f"\nStates explored: {trace[-2]['explored_size'] if len(trace) > 1 else 0}")
+        print_solution(solution)
+        print(f"Execution Time : {time_elapsed}")
+        print(f'Max Depth : {depth}')
+        with open('iddfs.txt','w') as F:
+            for matrix in expanded:
+                for row in matrix:
+                    for element in row:
+                        F.write(f"{str(element)} ")
+                    F.write("\n")
+                F.write("\n")
         
     elif choice == '4':
         # heuristic = input("Choose heuristic (manhattan/euclidean): ")
@@ -98,8 +142,22 @@ def main():
             if heur_choice in ('manhattan', 'euclidean'):
                 break
             print("Invalid choice. Please enter 'manhattan' or 'euclidean'.")
-        solution, trace, heur_name = astar(initial, goal, heur_choice)
-        print_astar_solution(solution, trace, heur_name)
+        start = time.time()
+        solution, trace, expanded_nodes, max_depth, heuristic_name = astar(initial, goal, heur_choice)
+        end = time.time()
+        time_elapsed = end-start
+        print_astar_solution(solution, trace, heuristic_name)
+        print(f"Execution Time : {time_elapsed}")
+        print(f'Max Depth : {max_depth}')
+        with open(f'a*{heuristic_name}.txt','w') as F:
+            for matrix in expanded_nodes:
+                for row in matrix:
+                    for element in row:
+                        F.write(f"{str(element)} ")
+                    F.write("\n")
+                F.write("\n")
+
+        
         
     elif choice == '5':
         print("\nExiting...")

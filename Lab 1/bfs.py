@@ -9,12 +9,14 @@ def BFS(initialState, goalState):
         goalState: PuzzleState object representing the goal
     
     Returns:
-        (solution_path, trace_data)
+        (solution_path, trace_data, expanded_nodes, max_depth)
     """
     frontier = deque([initialState])
     explored = set()
-    trace_data = []  # Store step-by-step information
-    
+    expanded_nodes = []  # Store all expanded states
+    trace_data = []      # Store step-by-step information
+    max_depth = 0        # Track the deepest node explored
+
     # Add initial state to trace
     trace_data.append({
         'step': 0,
@@ -22,7 +24,7 @@ def BFS(initialState, goalState):
         'current_state': copy.deepcopy(initialState.board),
         'frontier_size': 1,
         'explored_size': 0,
-        'message': 'Starting BFS with initial state'
+        'message': 'Starting DFS with initial state'
     })
     
     step = 0
@@ -31,16 +33,20 @@ def BFS(initialState, goalState):
         step += 1
         state = frontier.popleft()
         
+        # Track expanded node
+        expanded_nodes.append(copy.deepcopy(state.board))
+        max_depth = max(max_depth, state.depth)
+        
         # Add to trace
         trace_data.append({
             'step': step,
-            'action': 'dequeue',
+            'action': 'pop',
             'current_state': copy.deepcopy(state.board),
             'depth': state.depth,
             'move': state.move,
             'frontier_size': len(frontier),
             'explored_size': len(explored),
-            'message': f'Dequeued state (depth {state.depth})'
+            'message': f'Popped state (depth {state.depth})'
         })
         
         # Check if goal
@@ -53,7 +59,7 @@ def BFS(initialState, goalState):
                 'solution_length': len(solution_path),
                 'message': f'Goal found! Solution has {len(solution_path)} moves'
             })
-            return solution_path, trace_data
+            return solution_path, trace_data, expanded_nodes, max_depth
         
         explored.add(state.to_tuple())
         
@@ -89,4 +95,4 @@ def BFS(initialState, goalState):
         'action': 'failed',
         'message': 'Goal not found - no solution exists'
     })
-    return None, trace_data
+    return None, trace_data, expanded_nodes, max_depth

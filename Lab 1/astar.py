@@ -106,8 +106,7 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
         trace: If True, return detailed trace information
     
     Returns:
-        If trace=True: (solution_path, trace_data, heuristic_name)
-        If trace=False: solution_path
+        (solution_path, trace_data, expanded_nodes, max_depth, heuristic_name)
     """
     # Choose heuristic function
     if heuristic == 'manhattan':
@@ -133,6 +132,10 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
     
     trace_data = []
     
+    # NEW: Track expanded nodes and max depth explored
+    expanded_nodes = []
+    max_depth = 0
+    
     if trace:
         true_dist_initial = calculate_true_distance(initial_state, goal_state)
         trace_data.append({
@@ -156,6 +159,10 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
         # Delete minimum f-cost node from frontier
         current_node = heapq.heappop(frontier)
         state = current_node.state
+        
+        # NEW: Track expanded node and depth
+        expanded_nodes.append(copy.deepcopy(state.board))
+        max_depth = max(max_depth, state.depth)
         
         # Remove from frontier_dict
         state_tuple = state.to_tuple()
@@ -194,7 +201,7 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
                     'total_cost': current_node.g_cost,
                     'message': f'Goal found! Path cost: {current_node.g_cost}'
                 })
-                return solution_path, trace_data, heuristic_name
+                return solution_path, trace_data, expanded_nodes, max_depth, heuristic_name
             return solution_path
         
         # Generate neighbors
@@ -221,18 +228,16 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
                 frontier_dict[neighbor_tuple] = neighbor_node
                 added_count += 1
             else:
-                # Already in frontier - check if we found a better path
+                # Already in frontier - update if better path
                 existing_node = frontier_dict[neighbor_tuple]
                 if g_cost < existing_node.g_cost:
-                    # Found better path - update the node
-                    # Remove old node and add new one with better cost
                     existing_node.g_cost = g_cost
                     existing_node.h_cost = h_cost
                     existing_node.f_cost = g_cost + h_cost
                     existing_node.state.parent = neighbor.parent
                     existing_node.state.move = neighbor.move
                     existing_node.state.depth = neighbor.depth
-                    heapq.heapify(frontier)  # Re-heapify after update
+                    heapq.heapify(frontier)
                     updated_count += 1
         
         if trace and (added_count > 0 or updated_count > 0):
@@ -253,7 +258,7 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
             'action': 'failed',
             'message': 'Goal not found - no solution exists'
         })
-        return None, trace_data, heuristic_name
+        return None, trace_data, expanded_nodes, max_depth, heuristic_name
     
     return None
 
