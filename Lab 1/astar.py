@@ -97,17 +97,28 @@ def calculate_true_distance(state, goal_state):
 def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
     """
     Perform A* search on the 8-puzzle problem with state-hashing.
-    """
-    heuristic_func = manhattan_distance if heuristic == 'manhattan' else euclidean_distance
-    heuristic_name = "Manhattan Distance" if heuristic == 'manhattan' else "Euclidean Distance"
 
+    Args:
+        initial_state: PuzzleState object representing the start
+        goal_state: PuzzleState object representing the goal
+        heuristic: 'manhattan' or 'euclidean'
+        trace: Include detailed intermediate logs if True
+
+    Returns:
+        (solution_path, trace_data, expanded_nodes, max_depth, heuristic_name)
+    """
+    # Choose heuristic
+    heuristic_func = manhattan_distance if heuristic == 'manhattan' else euclidean_distance
+    heuristic_name = "Manhattan_Distance" if heuristic == 'manhattan' else "Euclidean_Distance"
+
+    # Initial setup
     h_initial = heuristic_func(initial_state.board, goal_state.board)
     initial_node = AStarNode(initial_state, 0, h_initial)
     frontier = [initial_node]
     frontier_dict = {initial_state.to_tuple(): initial_node}
     heapq.heapify(frontier)
 
-    explored = set()
+    explored = set()  # {state_tuple}
     trace_data = []
     expanded_nodes = []
     max_depth = 0
@@ -129,13 +140,13 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
         state = current_node.state
         state_tuple = state.to_tuple()
 
+        # Track expanded node & update depth
         expanded_nodes.append(copy.deepcopy(state.board))
         max_depth = max(max_depth, state.depth)
         frontier_dict.pop(state_tuple, None)
         explored.add(state_tuple)
 
         if trace:
-            # REMOVED calculate_true_distance call
             trace_data.append({
                 'step': step,
                 'action': 'dequeue',
@@ -143,23 +154,27 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
                 'g_cost': current_node.g_cost,
                 'h_cost': current_node.h_cost,
                 'f_cost': current_node.f_cost,
-                # 'true_distance': removed
                 'depth': state.depth,
                 'frontier_size': len(frontier),
                 'explored_size': len(explored),
                 'message': f"Dequeued node with f={current_node.f_cost:.2f}"
             })
 
+        # Goal test
         if state == goal_state:
             solution_path = reconstruct_path(state)
             if trace:
-                for i, path_state in enumerate(solution_path):
-                    # Create PuzzleState from path entry
-                    ps = PuzzleState(path_state['board'], None, None, i)
-                    true_dist = calculate_true_distance(ps, goal_state)
-                    path_state['true_distance'] = true_dist
+                trace_data.append({
+                    'step': step + 1,
+                    'action': 'goal_found',
+                    'current_state': copy.deepcopy(state.board),
+                    'total_cost': current_node.g_cost,
+                    'message': 'Goal reached!'
+                })
                 return solution_path, trace_data, expanded_nodes, max_depth, heuristic_name
+            return solution_path
 
+        # Expand neighbors
         neighbors = state.get_neighbors()
         added_count, updated_count = 0, 0
         
@@ -168,6 +183,7 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
             if neighbor_tuple in explored:
                 continue
 
+            # Calculate costs
             g_cost = current_node.g_cost + 1
             h_cost = heuristic_func(neighbor.board, goal_state.board)
             neighbor_node = AStarNode(neighbor, g_cost, h_cost)
@@ -179,6 +195,7 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
             else:
                 existing_node = frontier_dict[neighbor_tuple]
                 if g_cost < existing_node.g_cost:
+                    # Update costs and parent for a better route
                     existing_node.g_cost = g_cost
                     existing_node.h_cost = h_cost
                     existing_node.f_cost = g_cost + h_cost
@@ -201,7 +218,8 @@ def astar(initial_state, goal_state, heuristic='manhattan', trace=True):
 
     if trace:
         trace_data.append({'step': step + 1, 'action': 'failed', 'message': 'No solution exists'})
-    return None, trace_data, expanded_nodes, max_depth, heuristic_name
+        return None, trace_data, expanded_nodes, max_depth, heuristic_name
+    return None
 
 
 def print_astar_solution(solution, trace, heuristic_name):

@@ -157,7 +157,7 @@ def main():
         print_astar_solution(solution, trace, heuristic_name)
         print(f"Execution Time : {time_elapsed}")
         print(f'Max Depth : {max_depth}')
-        with open(f'a*{heuristic_name}.txt','w') as F:
+        with open(f'a_{heuristic_name}.txt','w') as F:
             for matrix in expanded_nodes:
                 for row in matrix:
                     for element in row:
