@@ -245,21 +245,21 @@ def print_astar_solution(solution, trace, heuristic_name):
     print("\n" + "="*50)
     
     # Print detailed trace information
-    print("\nDetailed Trace (Admissibility Check):")
-    print("-"*95)
-    print(f"{'Step':<6} {'Action':<12} {'g(n)':<6} {'h(n)':<8} {'f(n)':<8} {'True d*':<9} {'Admissible':<12} {'Frontier':<10} {'Explored':<10}")
-    print("-"*95)
+    # print("\nDetailed Trace (Admissibility Check):")
+    # print("-"*95)
+    # print(f"{'Step':<6} {'Action':<12} {'g(n)':<6} {'h(n)':<8} {'f(n)':<8} {'True d*':<9} {'Admissible':<12} {'Frontier':<10} {'Explored':<10}")
+    # print("-"*95)
     
-    for entry in trace:
-        step = entry.get('step', 0)
-        action = entry.get('action', 'N/A')
-        g_cost = entry.get('g_cost', 0)
-        h_cost = entry.get('h_cost', 0)
-        f_cost = entry.get('f_cost', 0)
-        true_distance = entry.get('true_distance', None)
-        frontier_size = entry.get('frontier_size', 0)
-        explored_size = entry.get('explored_size', 0)
+    # for entry in trace:
+    #     step = entry.get('step', 0)
+    #     action = entry.get('action', 'N/A')
+    #     g_cost = entry.get('g_cost', 0)
+    #     h_cost = entry.get('h_cost', 0)
+    #     f_cost = entry.get('f_cost', 0)
+    #     true_distance = entry.get('true_distance', None)
+    #     frontier_size = entry.get('frontier_size', 0)
+    #     explored_size = entry.get('explored_size', 0)
         
-        if action == 'dequeue' and true_distance is not None:
-            admissible = "Yes" if h_cost <= true_distance else "No"
-            print(f"{step:<6} {action:<12} {g_cost:<6} {h_cost:<8.2f} {f_cost:<8.2f} {true_distance:<9} {admissible:<12} {frontier_size:<10} {explored_size:<10}")
+    #     if action == 'dequeue' and true_distance is not None:
+    #         admissible = "Yes" if h_cost <= true_distance else "No"
+    #         print(f"{step:<6} {action:<12} {g_cost:<6} {h_cost:<8.2f} {f_cost:<8.2f} {true_distance:<9} {admissible:<12} {frontier_size:<10} {explored_size:<10}")
